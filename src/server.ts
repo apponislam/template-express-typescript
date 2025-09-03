@@ -4,16 +4,43 @@ import config from "./app/config";
 import mongoose from "mongoose";
 import http from "http";
 
+let server: Server;
+
 async function main() {
     try {
         await mongoose.connect(config.mongodb_url as string);
-        const server: Server = http.createServer(app);
+        server = http.createServer(app);
+
         server.listen(config.port, () => {
-            console.log(`App listening on port ${config.port}`);
+            console.log(`✅ App listening on port ${config.port}`);
         });
     } catch (err) {
-        console.log(err);
+        console.log("❌ DB Connection Failed:", err);
     }
 }
 
 main();
+
+process.on("unhandledRejection", (error) => {
+    console.log("❌ Unhandled Rejection detected:", error);
+
+    if (server) {
+        server.close(() => {
+            process.exit(1);
+        });
+    } else {
+        process.exit(1);
+    }
+});
+
+process.on("uncaughtException", (error) => {
+    console.log("❌ Uncaught Exception detected:", error);
+
+    if (server) {
+        server.close(() => {
+            process.exit(1);
+        });
+    } else {
+        process.exit(1);
+    }
+});

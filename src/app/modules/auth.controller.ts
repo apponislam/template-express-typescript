@@ -9,12 +9,11 @@ import sendResponse from "../utils/sendResponse.";
 const register = catchAsync(async (req: Request, res: Response) => {
     const result = await authServices.registerUser(req, req.body);
 
-    // Set refresh token in cookie
     res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
         secure: config.node_env === "production",
         sameSite: "strict",
-        maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
     sendResponse(res, {
@@ -32,7 +31,6 @@ const register = catchAsync(async (req: Request, res: Response) => {
 const login = catchAsync(async (req: Request, res: Response) => {
     const result = await authServices.loginUser(req.body);
 
-    // Set refresh token in cookie
     res.cookie("refreshToken", result.refreshToken, {
         httpOnly: true,
         secure: config.node_env === "production",
